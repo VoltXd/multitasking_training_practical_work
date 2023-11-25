@@ -11,63 +11,49 @@ participant "consumer" as consumer
 end box
 
 activate producers
-activate consumer
-
 producers -> sem_free : sem_wait()
 activate sem_free #gold
 return
 
-producers -> acquisitionManager : getFreeIndex()
-activate acquisitionManager #FFBBBB
-
-acquisitionManager -> mutex_free : pthread_mutex_lock()
+producers -> mutex_free : pthread_mutex_lock()
 activate mutex_free #gold
 return
 
-acquisitionManager -> acquisitionManager : i = freeIndexArray[freeIndex]; freeIndex = (freeIndex + 1) % N
+producers -> acquisitionManager : i = freeIndexArray[freeIndex]; freeIndex = (freeIndex + 1) % N
 
-acquisitionManager -> mutex_free : pthread_mutex_unlock()
+producers -> mutex_free : pthread_mutex_unlock()
 activate mutex_free #gold
-return
 return
 
 producers -> acquisitionManager : getInput(producerIndex, inputMsg); msgBuffer[i] = inputMsg
-activate acquisitionManager #FFBBBB
-return
 
-producers -> acquisitionManager : setFullIndex()
-activate acquisitionManager #FFBBBB
-
-acquisitionManager -> mutex_full : pthread_mutex_lock()
+producers -> mutex_full : pthread_mutex_lock()
 activate mutex_full #gold
 return
 
-acquisitionManager -> acquisitionManager : fullIndexArray[fullIndex] = i; fullIndex = (fullIndex + 1) % N
+producers -> acquisitionManager : fullIndexArray[fullIndex] = i; fullIndex = (fullIndex + 1) % N
 
-acquisitionManager -> mutex_full : pthread_mutex_unlock()
+producers -> mutex_full : pthread_mutex_unlock()
 activate mutex_full #gold
-return
 return
 
 producers -> sem_full : sem_post()
 activate sem_full #gold
 return
 
+deactivate producers
 
+activate consumer
 consumer -> acquisitionManager : getMessage()
 activate acquisitionManager #FFBBBB
 acquisitionManager -> sem_full : sem_wait()
 activate sem_full #gold
 return
-
-acquisitionManager -> acquisitionManager : readMsgBuffer()
-
 acquisitionManager -> sem_free : sem_post()
 activate sem_free #gold
 return
 return
 
-deactivate producers
 deactivate consumer
 
 
