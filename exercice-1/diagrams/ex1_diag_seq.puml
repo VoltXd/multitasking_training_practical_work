@@ -1,15 +1,32 @@
 @startuml
 !pragma teoz true
-box "bash process"
-participant bash
+box "Diagramme de séquence"
+participant "producer0:pthread_t" as producer0
+participant "producer1:pthread_t" as producer1
+participant "producer2:pthread_t" as producer2
+participant "producer3:pthread_t" as producer3
+participant "mutex_free_index_tab:pthread_mutex_t" as mutex_free
+participant "mutex_full_index_tab:pthread_mutex_t" as mutex_full
+participant "sem_free:sem_t = 4" as sem_free
+participant "acquisitionManager"
+participant "consumer:pthread_t" as consumer
+end box
 
-box "preambule process (child process)" #lightblue
-participant "main" as main
-participant "thread1:pthread_t" as thread1
-participant "mutex:pthread_mutex_t" as mutex
-participant "semaphore:sem_t" as semaphore
-end box
-end box
+activate producer0
+producer0 -> sem_free 
+
+producer0 -> mutex_free
+activate mutex_free #gold
+return
+
+
+producer0 -> mutex_full
+activate mutex_full #gold
+return
+
+activate sem_free
+return
+
 
 activate bash
 bash -> main --++ : "./preambule"
