@@ -1,0 +1,43 @@
+@startuml
+!pragma teoz true
+box "Diagramme de séquence"
+participant "consumer" as consumer
+participant "messageAdder"
+participant "acquisitionManager"
+participant "semSumReady = 0" as sem_sum
+participant "display" 
+end box
+
+activate consumer
+activate display
+
+
+consumer -> messageAdder : messageAdd(&out, &newMsg)
+activate messageAdder #FFBBBB
+return
+
+consumer -> messageAdder : sumReady()
+activate messageAdder #FFBBBB
+messageAdder -> acquisitionManager : setSemSumReady()
+activate acquisitionManager #FFBBBB
+acquisitionManager -> sem_sum : sem_post()
+activate sem_sum #gold
+return
+return
+return
+
+display -> messageAdder : getCurrentSum()
+activate messageAdder #FFBBBB
+messageAdder -> acquisitionManager : waitSemSumReady()
+activate acquisitionManager #FFBBBB
+acquisitionManager -> sem_sum : sem_wait()
+activate sem_sum #gold
+return
+return
+return
+
+deactivate consumer
+deactivate display
+
+
+@enduml

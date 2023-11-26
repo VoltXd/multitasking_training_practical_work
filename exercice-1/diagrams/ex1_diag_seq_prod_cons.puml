@@ -4,7 +4,7 @@ box "Diagramme de séquence"
 participant "producers"
 participant "mutexIndexFree" as mutex_free
 participant "mutexIndexFull" as mutex_full
-participant "semFree = N" as sem_free
+participant "semFree = 4" as sem_free
 participant "semFull = 0" as sem_full
 participant "acquisitionManager"
 participant "consumer" as consumer
@@ -13,44 +13,49 @@ end box
 activate producers
 activate consumer
 
-producers -> sem_free : sem_wait()
+producers -> acquisitionManager : writeMessage()
+activate acquisitionManager #FFBBBB
+
+acquisitionManager -> sem_free : sem_wait()
 activate sem_free #gold
 return
 
-producers -> acquisitionManager : getFreeIndex()
+acquisitionManager -> acquisitionManager : getFreeIndex()
 activate acquisitionManager #FFBBBB
 
 acquisitionManager -> mutex_free : pthread_mutex_lock()
 activate mutex_free #gold
 return
 
-acquisitionManager -> acquisitionManager : i = freeIndexArray[freeIndex]; freeIndex = (freeIndex + 1) % N
+acquisitionManager -> acquisitionManager : i = freeIndexArray[freeIndex]; freeIndex = (freeIndex + 1) % 4
 
 acquisitionManager -> mutex_free : pthread_mutex_unlock()
 activate mutex_free #gold
 return
 return
 
-producers -> acquisitionManager : getInput(producerIndex, inputMsg); msgBuffer[i] = inputMsg
+acquisitionManager -> acquisitionManager : getInput(producerIndex, inputMsg); msgBuffer[i] = inputMsg
 activate acquisitionManager #FFBBBB
 return
 
-producers -> acquisitionManager : setFullIndex()
+acquisitionManager -> acquisitionManager : setFullIndex()
 activate acquisitionManager #FFBBBB
 
 acquisitionManager -> mutex_full : pthread_mutex_lock()
 activate mutex_full #gold
 return
 
-acquisitionManager -> acquisitionManager : fullIndexArray[fullIndex] = i; fullIndex = (fullIndex + 1) % N
+acquisitionManager -> acquisitionManager : fullIndexArray[fullIndex] = i; fullIndex = (fullIndex + 1) % 4
 
 acquisitionManager -> mutex_full : pthread_mutex_unlock()
 activate mutex_full #gold
 return
 return
 
-producers -> sem_full : sem_post()
+acquisitionManager -> sem_full : sem_post()
 activate sem_full #gold
+return
+
 return
 
 

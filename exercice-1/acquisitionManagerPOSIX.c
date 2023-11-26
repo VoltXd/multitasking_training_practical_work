@@ -15,14 +15,18 @@
 //producer count storage
 volatile unsigned int produceCount = 0;
 
-pthread_t producers[4];
+pthread_t producers[PRODUCER_COUNT];
 
 static void *produce(void *params);
 
 /**
 * Semaphores and Mutex
 */
-//TODO
+pthread_mutex_t mutexIndexFree = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutexIndexFull = PTHREAD_MUTEX_INITIALIZER;
+sem_t* semFull;
+sem_t* semFree;
+sem_t* semSumReady;
 
 /*
 * Creates the synchronization elements.
