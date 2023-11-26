@@ -13,6 +13,7 @@ unsigned int getProducedCount(void);
 */
 MSG_BLOCK getMessage(void);
 
-//TODO create message accessors prototype here.
+void waitSemSumReady();
+void setSemSumReady();
 
 #endif

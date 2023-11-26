@@ -29,11 +29,14 @@ static void *sum( void *parameters );
 
 
 MSG_BLOCK getCurrentSum(){
-	//TODO
+	waitSemSumReady();
+	MSG_BLOCK currentSum = out;
+	
+	return currentSum;
 }
 
 unsigned int getConsumedCount(){
-	//TODO
+	return consumeCount;
 }
 
 
@@ -43,24 +46,39 @@ void messageAdderInit(void){
 	{
 		out.mData[i] = 0;
 	}
-	//TODO
+	pthread_create(&consumer, NULL, sum, NULL);
 }
 
 void messageAdderJoin(void){
-	//TODO
+	pthread_join(consumer, NULL);
 }
 
-static void *sum( void *parameters )
+void incrementConsumeCount(void)
+{
+	consumeCount++;
+}
+
+static void *sum(void *parameters)
 {
 	D(printf("[messageAdder]Thread created for sum with id %d\n", gettid()));
 	unsigned int i = 0;
 	while(i<ADDER_LOOP_LIMIT){
 		i++;
 		sleep(ADDER_SLEEP_TIME);
-		//TODO
+		MSG_BLOCK newMsg = getMessage();
+		if (!messageCheck(&newMsg))
+		{
+			printf("[messageAdder]ERROR::getInput: bad checksum");
+			continue;
+		}
+		messageAdd(&out, &newMsg);
+		incrementConsumeCount();
+
+		if (getConsumedCount() % 4 == 0)
+			setSemSumReady();
 	}
 	printf("[messageAdder] %d termination\n", gettid());
-	//TODO
+	pthread_exit(NULL);
 }
 
 
