@@ -7,7 +7,7 @@ box "preambule process (child process)" #lightblue
 participant "main" as main
 participant "thread1:pthread_t" as thread1
 participant "mutex:pthread_mutex_t" as mutex
-participant "semaphore:sem_t" as semaphore
+participant "semaphore:sem_t = 0" as semaphore
 end box
 end box
 
